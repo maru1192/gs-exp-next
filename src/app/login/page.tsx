@@ -1,11 +1,120 @@
 // src/app/login/page.tsx
 
+"use client";
+
+// ========================================
+// インポート
+// ========================================
+
+import { useState } from "react";
+// → useState: コンポーネント内で変化する値を管理
+//   例: メールアドレス、パスワード、エラーメッセージなど
+
+import { useRouter } from "next/navigation";
+// → useRouter: ページ遷移に使う
+//   例: ログイン成功後にメインページへ移動
+
+import { createClient } from "@/lib/supabase/client";
+// → Supabase クライアント
+//   認証処理に使う
+
+
 // ========================================
 // ログインページ（UIのみ）
 // ========================================
 // 認証機能は Day2 で実装します
 
 export default function LoginPage() {
+    //
+    // ========================================
+    // State（状態）の定義
+    // ========================================
+
+    const [email, setEmail] = useState("");
+    // → メールアドレスの入力値を保持
+
+    const [password, setPassword] = useState("");
+    // → パスワードの入力値を保持
+
+    const [isLogin, setIsLogin] = useState(true);
+    // → true: ログイン / false: 新規登録
+
+    const [error, setError] = useState("");
+    // → エラーメッセージを保持
+
+    const [loading, setLoading] = useState(false);
+    // → 処理中かどうか（ボタンの無効化に使う）
+
+
+    // ========================================
+    // Hooks（フック）の初期化
+    // ========================================
+
+    const router = useRouter();
+    // → ページ遷移用
+
+    const supabase = createClient();
+    // → Supabase クライアント
+
+
+    //送信の処理をします
+    const handleAuth = async (e: React.FormEvent) => {
+        //フォームタグの送信の際にページがリロードされるのを防ぐ
+        e.preventDefault();
+
+        //エラーをクリアにします
+        setError("");
+
+        //ローディングを管理するuseStateをtrueにして今処理をしている状態にします
+        setLoading(true);
+
+        //try catchを使って認証処理を記述します
+        try {
+            if (isLogin) {
+                // → signInWithPassword: メール/パスワードでログイン supbaseの機能です！注意！
+                //   成功すると Cookie にトークンが保存される
+                const { error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+                if (error) throw error;
+
+                // ログイン成功 → トップページへ
+                router.push("/");
+                // → "/" に遷移
+
+                router.refresh();
+                // → ページをリフレッシュして認証状態を反映
+                //   これがないと古い状態が表示されることがある
+            } else {
+                // → signUp: メール/パスワードで新規登録 supabaseの機能です！注意！
+                const { error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                });
+                // → signUp: 新規ユーザーを登録
+                //   ※ メール確認が必要な設定の場合は確認メールが送られる
+
+                if (error) throw error;
+
+                // 登録成功 → トップページへ
+                router.push("/");
+                router.refresh();
+            }
+
+            //supabaseの認証処理を呼び出します
+        } catch (err) {
+            //エラーが発生した場合はエラーメッセージをセットします
+            setError("認証に失敗しました。もう一度お試しください。")
+        } finally {
+            //finallyは全ての処理が終わった後に必ず実行される処理です
+            //処理が終わったらローディングをfalseにしてボタンを有効にします
+            setLoading(false);
+        }
+    }
+
+
+    //
     return (
         <div className="min-h-screen flex items-center justify-center">
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 w-full max-w-md border border-white/10">
