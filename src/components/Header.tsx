@@ -1,4 +1,5 @@
 // src/components/Header.tsx
+"use client";
 
 // ========================================
 // ヘッダーコンポーネント（UIのみ）
@@ -7,9 +8,11 @@
 
 type HeaderProps = {
     userInitial?: string;
+    onLogout?: () => void;
+    //ログアウト処理を受け取って、このHeader部品で使うために型を追加する
 };
 
-export default function Header({ userInitial = "U" }: HeaderProps) {
+export default function Header({ userInitial = "U", onLogout }: HeaderProps) {
     return (
         <header className="sticky top-0 z-50 backdrop-blur-lg bg-white/10 border-b border-white/10">
             <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -21,7 +24,10 @@ export default function Header({ userInitial = "U" }: HeaderProps) {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
                         {userInitial}
                     </div>
-                    <button className="text-white/70 hover:text-white transition text-sm">
+                    <button
+                        onClick={onLogout}
+                        className="text-white/70 hover:text-white transition text-sm"
+                    >
                         ログアウト
                     </button>
                 </div>

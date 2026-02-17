@@ -1,5 +1,4 @@
 // src/app/login/page.tsx
-
 "use client";
 
 // ========================================
@@ -17,7 +16,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 // → Supabase クライアント
 //   認証処理に使う
-
 
 // ========================================
 // ログインページ（UIのみ）
@@ -45,7 +43,6 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     // → 処理中かどうか（ボタンの無効化に使う）
 
-
     // ========================================
     // Hooks（フック）の初期化
     // ========================================
@@ -56,19 +53,18 @@ export default function LoginPage() {
     const supabase = createClient();
     // → Supabase クライアント
 
-
-    //送信の処理をします
+    // 送信の処理を記述します🤗
     const handleAuth = async (e: React.FormEvent) => {
-        //フォームタグの送信の際にページがリロードされるのを防ぐ
+        // formタグの送信（ボタンタグを押した時の挙動）の際にページがリロードされるのを防ぐ
         e.preventDefault();
 
-        //エラーをクリアにします
+        // エラーをクリアします🤗
         setError("");
 
-        //ローディングを管理するuseStateをtrueにして今処理をしている状態にします
+        // ローディングを管理するuseStateをtrueにして今処理をしている状態にします🤗
         setLoading(true);
 
-        //try catchを使って認証処理を記述します
+        //try　catchを使って認証処理を記述します🤗
         try {
             if (isLogin) {
                 // → signInWithPassword: メール/パスワードでログイン supbaseの機能です！注意！
@@ -102,24 +98,19 @@ export default function LoginPage() {
                 router.refresh();
             }
 
-            //supabaseの認証処理を呼び出します
+            // Supabaseの認証処理を呼び出します🤗
         } catch (err) {
-            //エラーが発生した場合はエラーメッセージをセットします
-            setError("認証に失敗しました。もう一度お試しください。")
+            // エラーが発生した場合はエラーメッセージをセットします🤗
+            setError("認証に失敗しました。もう一度お試しください。");
         } finally {
-            //finallyは全ての処理が終わった後に必ず実行される処理です
-            //処理が終わったらローディングをfalseにしてボタンを有効にします
+            // finallyは全て処理が終わった後に必ず実行される部分です🤗
+            // 処理が終わったらローディングをfalseにしてボタンを有効にします🤗
             setLoading(false);
         }
-    }
-
+    };
 
     //
     return (
-
-        // ========================================
-        // UI の描画
-        // ========================================
         <div className="min-h-screen flex items-center justify-center">
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 w-full max-w-md border border-white/10">
                 {/* タイトル */}
