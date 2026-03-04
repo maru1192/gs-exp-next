@@ -1,39 +1,28 @@
 // src/components/PostCard.tsx
+
 "use client";
 
+import type { Post } from "@/types";
+
 // ========================================
-// 投稿カードコンポーネント（UIのみ）
+// 投稿カードコンポーネント（いいね機能対応）
 // ========================================
-// いいね・削除機能は Day2, Day3 で実装します
-
-import { Post, SamplePost } from "@/types";
-
-// アバターの色
-const avatarColors = [
-    "from-pink-500 to-rose-500",
-    "from-purple-500 to-indigo-500",
-    "from-blue-500 to-cyan-500",
-    "from-green-500 to-emerald-500",
-    "from-orange-500 to-amber-500",
-];
-
-function getAvatarColor(username: string) {
-    const index = username.charCodeAt(0) % avatarColors.length;
-    return avatarColors[index];
-}
 
 type PostCardProps = {
     post: Post;
-    // → API から取得した投稿データ
     onDelete?: (id: number) => void;
-    // → 削除処理を親から受け取る
+    // --- Day3 追加 ここから ---
+    onLike?: (id: number, isLiked: boolean) => void;
+    isAnimating?: boolean;
+    // --- Day3 追加 ここまで ---
     formatDate?: (dateString: string) => string;
-    // → 日付フォーマット関数を親から受け取る
 };
 
 export default function PostCard({
     post,
     onDelete,
+    onLike,           // Day3 追加
+    isAnimating = false,  // Day3 追加
     formatDate,
 }: PostCardProps) {
     // デフォルトの日付フォーマット
@@ -44,14 +33,11 @@ export default function PostCard({
 
         if (diff < 60 * 1000) return "たった今";
         if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))}分前`;
-        if (diff < 24 * 60 * 60 * 1000)
-            return `${Math.floor(diff / (60 * 60 * 1000))}時間前`;
+        if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / (60 * 60 * 1000))}時間前`;
         return date.toLocaleDateString("ja-JP");
     };
 
-    const displayDate = formatDate
-        ? formatDate(post.createdAt)
-        : defaultFormatDate(post.createdAt);
+    const displayDate = formatDate ? formatDate(post.createdAt) : defaultFormatDate(post.createdAt);
 
     return (
         <article className="bg-white/10 backdrop-blur-lg rounded-2xl p-5 border border-white/10 card-hover">
@@ -82,7 +68,7 @@ export default function PostCard({
 
             {/* 画像 */}
             {post.imageUrl && (
-                <div className="rounded-xl overflow-hidden">
+                <div className="mb-4 rounded-xl overflow-hidden">{/* mb-4 は Day3 追加 */}
                     <img
                         src={post.imageUrl}
                         alt=""
@@ -90,6 +76,24 @@ export default function PostCard({
                     />
                 </div>
             )}
+
+            {/* --- Day3 追加 ここから --- */}
+            {/* アクション（いいねボタン） */}
+            <div className="flex items-center gap-6 pt-3 border-t border-white/10">
+                <button
+                    onClick={() => onLike?.(post.id, post.isLiked)}
+                    className={`flex items-center gap-2 transition-all ${post.isLiked
+                            ? "text-pink-500"
+                            : "text-white/50 hover:text-pink-500"
+                        } ${isAnimating ? "heart-animation" : ""}`}
+                >
+                    <span className="text-xl">
+                        {post.isLiked ? "❤️" : "🤍"}
+                    </span>
+                    <span className="font-medium">{post.likeCount}</span>
+                </button>
+            </div>
+            {/* --- Day3 追加 ここまで --- */}
         </article>
     );
 }

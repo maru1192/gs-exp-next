@@ -36,6 +36,9 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [animatingId, setAnimatingId] = useState<number | null>(null); // Day3 追加
+  // → いいねアニメーション用
+
   // ========================================
   // Hooks の初期化
   // ========================================
@@ -63,22 +66,30 @@ export default function Home() {
 
     setUser(user);
     setLoading(false);
-    fetchPosts();
+    fetchPosts(user.id); // Day3 変更: ユーザーIDを渡す
   };
 
   // ========================================
-  // 投稿一覧を取得
+  // 投稿一覧を取得（更新）
   // ========================================
 
-  const fetchPosts = async () => {
+  // --- Day3 変更 ここから ---
+  // 引数に userId を追加（いいね状態の判定用）
+  const fetchPosts = async (userId?: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/posts`);
+      // userId をクエリパラメータで送る
+      const url = userId
+        ? `${API_URL}/api/posts?userId=${userId}`
+        : `${API_URL}/api/posts`;
+
+      const response = await fetch(url);
       const data = await response.json();
       setPosts(data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
   };
+  // --- Day3 変更 ここまで ---
 
   // ========================================
   // 投稿を作成
@@ -111,7 +122,7 @@ export default function Home() {
     }
   };
 
-  
+
   // ========================================
   // 投稿を削除
   // ========================================
@@ -184,11 +195,65 @@ export default function Home() {
             </div>
           ) : (
             posts.map((post) => (
-              <PostCard key={post.id} post={post} onDelete={handleDelete} />
+              <PostCard
+                key={post.id}
+                post={post}
+                onDelete={handleDelete}
+                onLike={handleLike}           // Day3 追加
+                isAnimating={animatingId === post.id}  // Day3 追加
+              />
             ))
           )}
         </div>
       </main>
     </div>
   );
+
+  // ========================================
+  // いいね処理（新規追加）
+  // ========================================
+
+  // --- Day3 追加 ここから ---
+  const handleLike = async (postId: number, isLiked: boolean) => {
+    if (!user) return;
+
+    // アニメーション開始
+    setAnimatingId(postId);
+    setTimeout(() => setAnimatingId(null), 400);
+
+    try {
+      const method = isLiked ? "DELETE" : "POST";
+
+      const response = await fetch(`${API_URL}/api/posts/${postId}/like`, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("いいねに失敗しました");
+      }
+
+      const data = await response.json();
+
+      // 投稿一覧を更新（該当の投稿だけ更新）
+      setPosts(posts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            likeCount: data.likeCount,
+            isLiked: data.isLiked,
+          };
+        }
+        return post;
+      }));
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
+  // --- Day3 追加 ここまで ---
 }
