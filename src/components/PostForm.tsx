@@ -1,6 +1,7 @@
 // src/components/PostForm.tsx
 "use client";
-import { useRef, useState } from "react";  // useRef は Day3 追加
+
+import { useRef, useState } from "react"; // useRef は Day3 追加
 
 // ========================================
 // 投稿フォームコンポーネント（UIのみ）
@@ -11,7 +12,7 @@ type PostFormProps = {
     userInitial?: string;
     value: string;
     onChange: (value: string) => void; //入力したものが変化したときの処理
-    onSubmit: (e: React.FormEvent, imageFile: File | null) => void; //フォームのボタンが押されたかどうかの処理
+    onSubmit: (e: React.FormEvent, imageFile: File | null) => void;
     disabled?: boolean; //送信ボタンの状態
 };
 
@@ -22,15 +23,12 @@ export default function PostForm({
     onSubmit,
     disabled = false,
 }: PostFormProps) {
-
     // --- Day3 追加 ここから ---
     // 画像投稿用の State
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     // --- Day3 追加 ここまで ---
-
-    // --- Day3 追加 ここから ---
 
     // ========================================
     // 画像選択処理
@@ -80,37 +78,10 @@ export default function PostForm({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(e, selectedImage);  // Day3: 画像ファイルも渡す
+        onSubmit(e, selectedImage); // Day3: 画像ファイルも渡す
         // 送信後にクリア
         clearImage();
     };
-
-    // --- Day3 追加 ここまで ---
-
-    // ========================================
-    // 画像をクリア
-    // ========================================
-
-    const clearImage = () => {
-        setSelectedImage(null);
-        setImagePreview(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
-    };
-
-    // ========================================
-    // フォーム送信
-    // ========================================
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit(e, selectedImage);  // Day3: 画像ファイルも渡す
-        // 送信後にクリア
-        clearImage();
-    };
-
-
 
     return (
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-5 mb-6 border border-white/10 card-hover">
@@ -149,7 +120,6 @@ export default function PostForm({
                         {/* --- Day3 追加 ここまで --- */}
 
                         <div className="flex items-center justify-end mt-3 pt-3 border-t border-white/10">
-
                             {/* --- Day3 追加 ここから --- */}
                             {/* 画像選択ボタン */}
                             <div>
@@ -169,13 +139,12 @@ export default function PostForm({
                                 </button>
                             </div>
                             {/* --- Day3 追加 ここまで --- */}
-
                             <button
                                 type="submit"
                                 disabled={!value.trim() || disabled}
                                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-6 py-2 rounded-full transition-all"
                             >
-                                投稿する
+                                {disabled ? "投稿中..." : "投稿する"}
                             </button>
                         </div>
                     </div>

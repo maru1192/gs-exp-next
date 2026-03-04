@@ -22,6 +22,7 @@ export default function Home() {
   const [newPost, setNewPost] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  
   // --- Day3 追加 ここから ---
   const [animatingId, setAnimatingId] = useState<number | null>(null);  // いいねアニメーション用
   const [uploading, setUploading] = useState(false);  // 画像アップロード中
