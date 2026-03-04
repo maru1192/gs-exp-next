@@ -22,7 +22,7 @@ export default function Home() {
   const [newPost, setNewPost] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // --- Day3 追加 ここから ---
   const [animatingId, setAnimatingId] = useState<number | null>(null);  // いいねアニメーション用
   const [uploading, setUploading] = useState(false);  // 画像アップロード中
@@ -277,7 +277,7 @@ export default function Home() {
               <PostCard
                 key={post.id}
                 post={post}
-                onDelete={handleDelete}
+                onDelete={post.userId === user?.id ? handleDelete : undefined} //投稿したユーザーだけが投稿を削除することができる
                 onLike={handleLike}           // Day3 追加
                 isAnimating={animatingId === post.id}  // Day3 追加
               />
